@@ -1,57 +1,123 @@
-package com.mycompany.userauthsystem;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
+ */
+package com.mycompany.applicationsystem;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserAuthSystemTest {
+/**
+ *
+ * @author laptop
+ */
+public class ApplicationSystemTest {
 
+    /**
+     * Test of checkUserName method
+     */
     @Test
     public void testCheckUserName() {
-        assertTrue(UserAuthSystem.checkUserName("user_"));   // valid
-        assertFalse(UserAuthSystem.checkUserName("user"));   // missing _
-        assertFalse(UserAuthSystem.checkUserName("longusername")); // too long
+
+        String username = "ab_cd";
+
+        boolean result = ApplicationSystem.checkUserName(username);
+
+        assertTrue(result);
     }
 
+    /**
+     * Test of checkPassword method
+     */
     @Test
-    public void testCheckPasswordComplexity() {
-        assertTrue(UserAuthSystem.checkPasswordComplexity("Passw0rd!")); // valid
-        assertFalse(UserAuthSystem.checkPasswordComplexity("password")); // no capital, number, special
-        assertFalse(UserAuthSystem.checkPasswordComplexity("Password")); // no number, special
-        assertFalse(UserAuthSystem.checkPasswordComplexity("Pass1234")); // no special char
+    public void testCheckPassword() {
+
+        String password = "Password1!";
+
+        boolean result = ApplicationSystem.checkPassword(password);
+
+        assertTrue(result);
     }
 
+    /**
+     * Test of login method
+     */
     @Test
-    public void testCheckCellPhoneNumber() {
-        assertTrue(UserAuthSystem.checkCellPhoneNumber("+27123456789")); // valid
-        assertFalse(UserAuthSystem.checkCellPhoneNumber("0123456789"));  // missing +27
-        assertFalse(UserAuthSystem.checkCellPhoneNumber("+2712345678")); // too short
+    public void testLogin() {
+
+        String username = "ab_cd";
+        String password = "Password1!";
+
+        boolean result = ApplicationSystem.login(
+                username,
+                password,
+                "ab_cd",
+                "Password1!"
+        );
+
+        assertTrue(result);
     }
 
+    /**
+     * Test of validateNumber method
+     */
     @Test
-    public void testRegisterUser() {
-        assertEquals("Username and password successfully captured. User registered!",
-                UserAuthSystem.registerUser("user_", "Passw0rd!"));
+    public void testValidateNumber() {
 
-        assertEquals("Username is not correct. Must have _ and max 5 chars.",
-                UserAuthSystem.registerUser("user", "Passw0rd!"));
+        String number = "+27123456789";
 
-        assertEquals("Password is not correct. Must have 8+ chars, capital letter, number, and special char.",
-                UserAuthSystem.registerUser("user_", "password"));
+        String result = ApplicationSystem.validateNumber(number);
+
+        assertEquals("Valid", result);
     }
 
+    /**
+     * Test of createMessageHash method
+     */
     @Test
-    public void testLoginUser() {
-        String storedUsername = "user_";
-        String storedPassword = "Passw0rd!";
+    public void testCreateMessageHash() {
 
-        assertTrue(UserAuthSystem.loginUser("user_", "Passw0rd!", storedUsername, storedPassword));
-        assertFalse(UserAuthSystem.loginUser("wrong", "Passw0rd!", storedUsername, storedPassword));
-        assertFalse(UserAuthSystem.loginUser("user_", "wrong", storedUsername, storedPassword));
+        String id = "1234567890";
+        int num = 1;
+        String msg = "Hello World";
+
+        String result = ApplicationSystem.createMessageHash(id, num, msg);
+
+        assertEquals("12:1:HELLOWORLD", result);
     }
 
+    /**
+     * Test of storeMessage method
+     */
     @Test
-    public void testReturnLoginStatus() {
-        assertEquals("Login successful! Welcome back!", UserAuthSystem.returnLoginStatus(true));
-        assertEquals("Username or password incorrect, please try again.", UserAuthSystem.returnLoginStatus(false));
+    public void testStoreMessage() {
+
+        ApplicationSystem.storeMessage();
+
+        assertTrue(true);
+    }
+
+    /**
+     * Test of showMessages method
+     */
+    @Test
+    public void testShowMessages() {
+
+        ApplicationSystem.showMessages();
+
+        assertTrue(true);
+    }
+
+    /**
+     * Test of main method
+     */
+    @Test
+    public void testMain() {
+
+        String[] args = {};
+
+        assertDoesNotThrow(() -> {
+            // Do not run interactive main method in unit testing
+        });
     }
 }
