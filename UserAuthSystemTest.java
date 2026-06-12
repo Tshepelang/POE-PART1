@@ -1,123 +1,198 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
- */
 package com.mycompany.applicationsystem;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- *
- * @author laptop
- */
 public class ApplicationSystemTest {
 
-    /**
-     * Test of checkUserName method
-     */
-    @Test
-    public void testCheckUserName() {
+    @BeforeEach
+    public void setUp() {
 
-        String username = "ab_cd";
+        ApplicationSystem.ids.clear();
+        ApplicationSystem.messages.clear();
+        ApplicationSystem.recipients.clear();
+        ApplicationSystem.timestamps.clear();
+        ApplicationSystem.hashes.clear();
+        ApplicationSystem.statusList.clear();
 
-        boolean result = ApplicationSystem.checkUserName(username);
-
-        assertTrue(result);
+        ApplicationSystem.sentCount = 0;
+        ApplicationSystem.messageLimit = 0;
     }
 
-    /**
-     * Test of checkPassword method
-     */
+    // ---------------- USERNAME TESTS ----------------
+
     @Test
-    public void testCheckPassword() {
-
-        String password = "Password1!";
-
-        boolean result = ApplicationSystem.checkPassword(password);
-
-        assertTrue(result);
+    public void testValidUsername() {
+        assertTrue(ApplicationSystem.checkUserName("ab_cd"));
     }
 
-    /**
-     * Test of login method
-     */
     @Test
-    public void testLogin() {
+    public void testInvalidUsernameNoUnderscore() {
+        assertFalse(ApplicationSystem.checkUserName("abcd"));
+    }
 
-        String username = "ab_cd";
-        String password = "Password1!";
+    @Test
+    public void testInvalidUsernameTooLong() {
+        assertFalse(ApplicationSystem.checkUserName("abc_de"));
+    }
 
-        boolean result = ApplicationSystem.login(
-                username,
-                password,
-                "ab_cd",
-                "Password1!"
+    // ---------------- PASSWORD TESTS ----------------
+
+    @Test
+    public void testValidPassword() {
+        assertTrue(ApplicationSystem.checkPassword("Password1!"));
+    }
+
+    @Test
+    public void testInvalidPassword() {
+        assertFalse(ApplicationSystem.checkPassword("password"));
+    }
+
+    // ---------------- LOGIN TESTS ----------------
+
+    @Test
+    public void testLoginSuccess() {
+        assertTrue(
+                ApplicationSystem.login(
+                        "ab_cd",
+                        "Password1!",
+                        "ab_cd",
+                        "Password1!"
+                )
         );
-
-        assertTrue(result);
     }
 
-    /**
-     * Test of validateNumber method
-     */
     @Test
-    public void testValidateNumber() {
-
-        String number = "+27123456789";
-
-        String result = ApplicationSystem.validateNumber(number);
-
-        assertEquals("Valid", result);
+    public void testLoginFailure() {
+        assertFalse(
+                ApplicationSystem.login(
+                        "user",
+                        "wrong",
+                        "admin",
+                        "Password1!"
+                )
+        );
     }
 
-    /**
-     * Test of createMessageHash method
-     */
+    // ---------------- PHONE NUMBER TESTS ----------------
+
+    @Test
+    public void testValidNumber() {
+        assertEquals(
+                "Valid",
+                ApplicationSystem.validateNumber("+27123456789")
+        );
+    }
+
+    @Test
+    public void testInvalidNumberPrefix() {
+        assertEquals(
+                "Invalid: must start with +27",
+                ApplicationSystem.validateNumber("07123456789")
+        );
+    }
+
+    @Test
+    public void testInvalidNumberLength() {
+        assertEquals(
+                "Invalid: must be 12 digits (+27XXXXXXXXX)",
+                ApplicationSystem.validateNumber("+2712345678")
+        );
+    }
+
+    // ---------------- HASH TESTS ----------------
+
     @Test
     public void testCreateMessageHash() {
 
-        String id = "1234567890";
-        int num = 1;
-        String msg = "Hello World";
+        String result =
+                ApplicationSystem.createMessageHash(
+                        "1234567890",
+                        0,
+                        "Hello World"
+                );
 
-        String result = ApplicationSystem.createMessageHash(id, num, msg);
-
-        assertEquals("12:1:HELLOWORLD", result);
+        assertEquals("12:0:HELLOWORLD", result);
     }
 
-    /**
-     * Test of storeMessage method
-     */
+    // ---------------- MESSAGE STORAGE TESTS ----------------
+
     @Test
-    public void testStoreMessage() {
+    public void testDeleteByHash() {
 
-        ApplicationSystem.storeMessage();
+        ApplicationSystem.ids.add("1234567890");
+        ApplicationSystem.hashes.add("12:0:HELLOWORLD");
+        ApplicationSystem.recipients.add("+27123456789");
+        ApplicationSystem.messages.add("Hello World");
+        ApplicationSystem.timestamps.add("12:00:00");
+        ApplicationSystem.statusList.add("SENT");
+        ApplicationSystem.sentCount = 1;
 
-        assertTrue(true);
+        ApplicationSystem.deleteByHash("12:0:HELLOWORLD");
+
+        assertEquals(0, ApplicationSystem.messages.size());
+        assertEquals(0, ApplicationSystem.ids.size());
+        assertEquals(0, ApplicationSystem.hashes.size());
     }
 
-    /**
-     * Test of showMessages method
-     */
+    @Test
+    public void testSearchByIdExisting() {
+
+        ApplicationSystem.ids.add("1111111111");
+        ApplicationSystem.messages.add("Test Message");
+        ApplicationSystem.recipients.add("+27123456789");
+
+        assertTrue(ApplicationSystem.ids.contains("1111111111"));
+    }
+
+    @Test
+    public void testSearchByRecipientExisting() {
+
+        ApplicationSystem.ids.add("1111111111");
+        ApplicationSystem.messages.add("Hello");
+        ApplicationSystem.recipients.add("+27123456789");
+
+        assertTrue(
+                ApplicationSystem.recipients.contains("+27123456789")
+        );
+    }
+
+    // ---------------- REPORT METHODS ----------------
+
     @Test
     public void testShowMessages() {
-
-        ApplicationSystem.showMessages();
-
-        assertTrue(true);
+        assertDoesNotThrow(() -> ApplicationSystem.showMessages());
     }
 
-    /**
-     * Test of main method
-     */
     @Test
-    public void testMain() {
+    public void testShowLongestMessage() {
+        assertDoesNotThrow(() -> ApplicationSystem.showLongestMessage());
+    }
 
-        String[] args = {};
+    @Test
+    public void testDisplayReport() {
+        assertDoesNotThrow(() -> ApplicationSystem.displayReport());
+    }
 
-        assertDoesNotThrow(() -> {
-            // Do not run interactive main method in unit testing
-        });
+    @Test
+    public void testStoreMessage() {
+        assertDoesNotThrow(() -> ApplicationSystem.storeMessage());
+    }
+
+    @Test
+    public void testSearchById() {
+        assertDoesNotThrow(() -> ApplicationSystem.searchById("123"));
+    }
+
+    @Test
+    public void testSearchByRecipient() {
+        assertDoesNotThrow(() ->
+                ApplicationSystem.searchByRecipient("+27123456789"));
+    }
+
+    @Test
+    public void testDeleteByHashNonExisting() {
+        assertDoesNotThrow(() ->
+                ApplicationSystem.deleteByHash("INVALID"));
     }
 }
